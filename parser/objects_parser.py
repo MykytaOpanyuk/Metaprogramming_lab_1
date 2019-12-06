@@ -1,79 +1,98 @@
-def get_comment_for_object(self, start_line):
-    prev_line = self.content.split('\n')[start_line - 2]
-    return
+from re import search
 
-def get_object(self, chars):
-    timetable_content = ""
-    brace_type_1 = False
-    brace_type_2 = False
-    start_line = self.line_counter
 
-    timetable_content = timetable_content + chars
-    self.index = self.index + len(chars)
+class ObjectParser:
+    start_line: int
+    object_comment: str
+    object_body: str
 
-    while self.content[self.index] != "\n":
-        self.index = self.index + 1
-        timetable_content = timetable_content + self.content[self.index]
-        if self.content[self.index] == "{":
-            brace_type_1 = True
-        if self.content[self.index] == "(":
-            brace_type_2 = True
+    def get_object(self, parser, chars):
+        brace_stack_1 = 0
+        brace_stack_2 = 0
+        is_first_brace = 0  # 1 - brace "{", 2 - brace "("
+        self.start_line = parser.line_counter
 
-    self.index = self.index + 1
-    self.line_counter = self.line_counter + 1
-    timetable_content = timetable_content + "<br />"
+        self.object_body = self.object_body + chars
+        parser.index = parser.index + len(chars)
 
-    if not brace_type_1 and not brace_type_2:
-        self.vars.append(timetable_content)
+        while parser.content[parser.index] != "\n":
+            parser.index = parser.index + 1
+            self.object_body = self.object_body + parser.content[parser.index]
+            if parser.content[parser.index] == "{":
+                brace_stack_1 = brace_stack_1 + 1
+                if not is_first_brace:
+                    is_first_brace = 1
+            if parser.content[parser.index] == "(":
+                brace_stack_2 = brace_stack_2 + 1
+                if not is_first_brace:
+                    is_first_brace = 2
+
+        parser.index = parser.index + 1
+        parser.line_counter = parser.line_counter + 1
+        self.object_body = self.object_body + "<br />"
+
+        if brace_stack_1 == 0 and brace_stack_2 == 0:
+            parser.vars.append(self)
+            return
+
+        if is_first_brace == 2:
+            while brace_stack_2 > 0:
+                if parser.content[parser.index] == "(":
+                    brace_stack_2 = brace_stack_2 + 1
+
+                if parser.content[parser.index] == ")":
+                    brace_stack_2 = brace_stack_2 - 1
+
+                if parser.content[parser.index] == "\n":
+                    parser.line_counter = parser.line_counter + 1
+                    self.object_body = self.object_body + "<br />"
+
+                parser.index = parser.index + 1
+                self.object_body = self.object_body + parser.content[parser.index]
+
+        if is_first_brace == 1:
+            while brace_stack_1 > 0:
+                if parser.content[parser.index] == "{":
+                    brace_stack_1 = brace_stack_1 + 1
+
+                if parser.content[parser.index] == "}":
+                    brace_stack_1 = brace_stack_1 - 1
+
+                if parser.content[parser.index] == "\n":
+                    parser.line_counter = parser.line_counter + 1
+                    self.object_body = self.object_body + "<br />"
+
+                parser.index = parser.index + 1
+                self.object_body = self.object_body + parser.content[parser.index]
+        parser.index = parser.index + 1
+        parser.line_counter = parser.line_counter + 1
+        self.object_body = self.object_body + "<br />"
+        self.get_comment_for_object(self, parser)
+
+        if chars == "var":
+            parser.variables.append(self)
+        else:
+            parser.const.append(self)
+
         return
 
-    if brace_type_2:
-        while self.content[self.index] != ")":
+    def get_comment_for_object(self, parser):
+        previous_line = parser.content.split('\n')[self.start_line - 1]
 
-            if self.content[self.index] == "\n":
-                self.line_counter = self.line_counter + 1
-                timetable_content = timetable_content + "<br />"
+        if search(r"(\*/|/\*|/{2,})", previous_line):
+            self.object_comment = parser.comments[-1]
+            parser.comments_attached[-1] = True
 
-            self.index = self.index + 1
-            timetable_content = timetable_content + self.content[self.index]
+        return
 
-        if self.content[self.index] == "\n":
-            self.index = self.index + 1
-            self.line_counter = self.line_counter + 1
-            timetable_content = timetable_content + "<br />"
+    def get_variables(self, parser):
+        chars = parser.content[parser.index:][:4]
 
-    self.vars.append(timetable_content)
-    get_comment_for_object(self, start_line)
+        if chars == "var":
+            self.get_object(parser, chars)
 
-    if brace_type_1:
-        while self.content[self.index] != "}":
+    def get_const(self, parser):
+        chars = parser.content[parser.index:][:4]
 
-            if self.content[self.index] == "\n":
-                self.line_counter = self.line_counter + 1
-                timetable_content = timetable_content + "<br />"
-
-            self.index = self.index + 1
-            timetable_content = timetable_content + self.content[self.index]
-
-    if self.content[self.index] == "\n":
-        self.index = self.index + 1
-        self.line_counter = self.line_counter + 1
-        timetable_content = timetable_content + "<br />"
-
-    self.vars.append(timetable_content)
-
-    return
-
-
-def get_variables(self):
-    chars = self.content[self.index:][:4]
-
-    if chars == "var":
-        get_object(self, chars)
-
-
-def get_const(self):
-    chars = self.content[self.index:][:4]
-
-    if chars == "const":
-        get_object(self, chars)
+        if chars == "const":
+            self.get_object(parser, chars)

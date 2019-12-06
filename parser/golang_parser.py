@@ -1,3 +1,7 @@
+from .import_parser import ImportsParser
+from .package_parser import PackageParser
+
+
 class GolangParser:
 
     def __init__(self, input_file, output_file):
@@ -6,8 +10,8 @@ class GolangParser:
         self.input_file = input_file
         self.index = 0
         self.line_counter = 0
-        self.content = ""
 
+        self.content = ""
         self.package = ""
         self.imports = []
         self.const = []
@@ -17,6 +21,7 @@ class GolangParser:
         self.methods = []
         self.variables = []
         self.comments = []
+        self.comments_attached = []
 
     def get_content(self):
 
@@ -44,6 +49,7 @@ class GolangParser:
                 timetable_content = timetable_content + "<br />"
 
             self.comments.append(timetable_content)
+            self.comments_attached.append(False)
             self.index = self.index + len("*/")
 
         elif chars == "//":
@@ -53,8 +59,8 @@ class GolangParser:
                 timetable_content = timetable_content + self.content[self.index]
                 self.index = self.index + 1
 
-                if self.content[self.index + 1] == "\n" and self.content[self.index + 2:][:2] == "//":
-                    self.index = self.index + 2 + len("//")
+                if self.content[self.index] == "\n" and self.content[self.index + 1:][:2] == "//":
+                    self.index = self.index + 1 + len("//")
                     self.line_counter = self.line_counter + 1
                     timetable_content = timetable_content + "<br />"
                     while self.content[self.index] != "\n":
@@ -65,61 +71,17 @@ class GolangParser:
             self.line_counter = self.line_counter + 1
             timetable_content = timetable_content + "<br />"
             self.comments.append(timetable_content)
+            self.comments_attached.append(False)
             return
         return
-
-    def get_package(self):
-        """Parsing package name in the begin of *.go file"""
-        chars = self.content[self.index:][:7]
-        timetable_content = ""
-
-        if chars == "package":
-            timetable_content = timetable_content + chars
-            self.index = self.index + len(chars)
-
-            while self.content[self.index] != "\n":
-                timetable_content = timetable_content + self.content[self.index]
-                self.index = self.index + 1
-
-            self.index = self.index + 1
-            self.line_counter = self.line_counter + 1
-            timetable_content = timetable_content + "<br />"
-            self.package = timetable_content
-            return
-        return
-
-    def get_imports(self):
-        """Parsing imports of another packages"""
-        chars = self.content[self.index:][:6]
-        timetable_content = ""
-
-        if chars == "import":  # TODO: check parsing multiline import
-            timetable_content = timetable_content + chars
-            self.index = self.index + len(chars)
-
-            while self.content[self.index] != "\n":
-                if self.content[self.index] == "(":
-                    while self.content[self.index] != ")":
-                        if self.content[self.index] == "\n":
-                            self.line_counter = self.line_counter + 1
-                            self.index = self.index + 1
-                            timetable_content = timetable_content + "<br />"
-                        else:
-                            timetable_content = timetable_content + self.content[self.index]
-                            self.index = self.index + 1
-
-                timetable_content = timetable_content + self.content[self.index]
-                self.index = self.index + 1
-
-            self.index = self.index + 1
-            self.line_counter = self.line_counter + 1
-            timetable_content = timetable_content + "<br />"
-            self.imports.append(timetable_content)
 
     def parse_content(self):
+        new_import_parser = ImportsParser()
+        new_package_parser = PackageParser()
         while self.content and self.index < len(self.content):
             self.get_comment()
-            self.get_package()
-            self.get_imports()
+            new_package_parser.get_package(self)
+            new_import_parser.get_imports(self)
             if self.content[self.index] == "\n":
                 self.index = self.index + 1
+                self.line_counter = self.line_counter + 1
