@@ -2,20 +2,16 @@ from re import search
 
 
 class ImportsParser:
-    start_line: int
-    import_comment: str
-    import_body: str
-
     def __init__(self):
-        self.imports_body = ""
-        self.imports_comment = ""
+        self.import_body = ""
+        self.import_comment = ""
         self.start_line = 0
 
     def get_imports(self, parser):
         """Parsing imports of another packages"""
-        chars = parser.content[parser.index:][:6]
+        chars = parser.content[parser.index:][:7]
 
-        if chars == "import":
+        if chars == "import ":
             self.import_body = self.import_body + chars
             self.start_line = parser.line_counter
             parser.index = parser.index + len(chars)
@@ -43,7 +39,7 @@ class ImportsParser:
     def get_imports_comment(self, parser):
         previous_line = parser.content.split('\n')[self.start_line - 1]
 
-        if search(r"(\*/|/\*|/{2,})", previous_line):
+        if previous_line.find('*/') or previous_line.find('//'):
             self.import_comment = parser.comments[-1]
             parser.comments_attached[-1] = True
 

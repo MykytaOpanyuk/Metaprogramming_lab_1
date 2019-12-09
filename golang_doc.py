@@ -23,15 +23,17 @@ if args.project is not None:
                 for f in files:
                     all_files.append(f)
             golang_files = list(filter(lambda x: x.endswith('.go'), all_files))
-            if len(golang_files) > 0:
+            index = len(golang_files)
+            while index > 0:
                 print(golang_files)
                 """Timetable"""
                 gen_file = open(args.output, encoding='utf-8', mode="w+")
                 gen_file.close()
-                new_parser = GolangParser(golang_files[0], args.output)
+                new_parser = GolangParser(golang_files[index - 1], args.output)
                 print(type(new_parser))
                 new_parser.get_content()
                 new_parser.parse_content()
+                index = index - 1
 
             else:
                 print("Failed! Project doesn't contain *.go files.")

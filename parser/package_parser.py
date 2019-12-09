@@ -2,9 +2,9 @@ from re import search
 
 
 class PackageParser:
-    start_line: int
-    package_comment: str
-    package_body: str
+    def __init__(self):
+        self.package_comment = ""
+        self.package_body = ""
 
     def get_package(self, parser):
         """Parsing package name in the begin of *.go file"""
@@ -23,16 +23,13 @@ class PackageParser:
             parser.index = parser.index + 1
             parser.line_counter = parser.line_counter + 1
             self.package_body = self.package_body + "<br />"
-            self.get_package_comment()
-            return
-        return
+            self.get_package_comment(parser)
 
     def get_package_comment(self, parser):
         previous_line = parser.content.split('\n')[self.start_line - 1]
 
-        if search(r"(\*/|/\*|/{2,})", previous_line):
+        if previous_line.find('*/') or previous_line.find('//'):
             self.package_comment = parser.comments[-1]
             parser.comments_attached[-1] = True
 
         parser.package = self
-        return
