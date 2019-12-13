@@ -1,12 +1,16 @@
 from re import search
-
+from .comment_helper import attached_comment
 
 class PackageParser:
     def __init__(self):
         self.package_comment = ""
         self.package_body = ""
+        self.start_line = ""
 
     def get_package(self, parser):
+        if parser.package != '':
+            return
+
         """Parsing package name in the begin of *.go file"""
         chars = parser.content[parser.index:][:7]
         self.package_body = ""
@@ -26,10 +30,6 @@ class PackageParser:
             self.get_package_comment(parser)
 
     def get_package_comment(self, parser):
-        previous_line = parser.content.split('\n')[self.start_line - 1]
-
-        if previous_line.find('*/') or previous_line.find('//'):
-            self.package_comment = parser.comments[-1]
-            parser.comments_attached[-1] = True
-
+        self.package_comment = attached_comment(parser, self.start_line)
         parser.package = self
+

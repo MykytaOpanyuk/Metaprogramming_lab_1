@@ -1,13 +1,13 @@
 from .import_parser import ImportsParser
 from .package_parser import PackageParser
-from .objects_parser import ObjectParser
 from .objects_parser import get_type, get_const, get_variable, get_func
+import os
+
 
 class GolangParser:
 
-    def __init__(self, input_file, output_file):
+    def __init__(self, input_file):
 
-        self.output_file = output_file
         self.input_file = input_file
         self.index = 0
         self.line_counter = 0
@@ -20,18 +20,20 @@ class GolangParser:
         self.structs = []
         self.functions = []
         self.variables = []
-        self.interfaces = []
         self.comments = []
         self.comments_attached = []
         self.first_comment = ""
 
-    def get_content(self):
+        self.get_content()
+        self.parse_content()
 
+    def get_content(self):
+        self.input_file = os.path.normpath(self.input_file)
         file = open(self.input_file, encoding='utf-8', mode="r")
 
         self.content = file.read()
         print(self.content)
-        self.content = self.content.replace("\t", " ")
+        self.content = self.content.replace("\t", " &emsp; ")
 
         file.close()
 
@@ -59,7 +61,8 @@ class GolangParser:
         elif chars == "//":
             self.index = self.index + len("//")
 
-            while self.content[self.index] != "\n" or self.content[self.index + 1:][:2] == "//":  # while not end of comment
+            while self.content[self.index] != "\n" or self.content[self.index + 1:][
+                                                      :2] == "//":  # while not end of comment
                 if self.content[self.index] == "\n" and self.content[self.index + 1:][:2] == "//":
                     temporary_content = temporary_content + "<br />"
                     self.index = self.index + 1 + len("//")
@@ -92,6 +95,9 @@ class GolangParser:
             if self.index < len(self.content) and self.content[self.index] == "\n":
                 self.index = self.index + 1
                 self.line_counter = self.line_counter + 1
+            if self.index < len(self.content) and self.content[self.index] == " ":
+                self.index = self.index + 1
 
         print("Parsing is done!")
         self.first_comment = self.comments[0]
+

@@ -1,4 +1,4 @@
-from re import search
+from .comment_helper import attached_comment
 
 
 class ImportsParser:
@@ -37,11 +37,9 @@ class ImportsParser:
             self.get_imports_comment(parser)
 
     def get_imports_comment(self, parser):
-        previous_line = parser.content.split('\n')[self.start_line - 1]
-
-        if previous_line.find('*/') or previous_line.find('//'):
-            self.import_comment = parser.comments[-1]
-            parser.comments_attached[-1] = True
-
+        self.import_comment = attached_comment(parser, self.start_line)
         parser.imports.append(self)
-        self.imports_body = ""
+
+        self.import_body = ""
+        self.import_comment = ""
+

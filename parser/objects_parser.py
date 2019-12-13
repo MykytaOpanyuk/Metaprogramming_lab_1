@@ -1,8 +1,8 @@
-from re import search, match
+from re import match
 
 class ObjectParser:
     def __init__(self):
-        self.start_line = ""
+        self.start_line = 0
         self.object_comment = ""
         self.object_body = ""
         self.object_type = ""
@@ -106,7 +106,6 @@ def get_type(parser):
         self.get_object(parser, chars)
 
         first_str = parser.content.split('\n')[self.start_line]
-        self.type_name: str
         list_str = first_str.split(' ')
 
         self.object_type = list_str[2]
