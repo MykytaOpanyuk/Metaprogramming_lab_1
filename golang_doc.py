@@ -21,7 +21,7 @@ if args.project is not None:
         if args.output is not None:
             print(args.project)
             all_files = []
-            for d,dirs, files in os.walk(args.project):
+            for d, dirs, files in os.walk(args.project):
                 for f in files:
                     all_files.append(f)
             golang_files = list(filter(lambda x: x.endswith('.go'), all_files))
@@ -46,7 +46,7 @@ elif args.directory is not None:
             golang_files = list(filter(lambda x: x.endswith('.go'), files))
             if len(golang_files) > 0:
                 if os.path.isdir(args.output):
-                    new_ModuleGenerator = ModuleGenerator(args.directory, args.output, "")
+                    new_ModuleGenerator = ModuleGenerator(args.directory, args.output, "module")
                 else:
                     print("Failed! Output directory doesn't exists.")
             else:
@@ -60,7 +60,7 @@ elif args.file is not None:
     if os.path.isfile(args.file):
         if args.output is not None:
             if os.path.isdir(args.output):
-                new_FileGenerator = FileGenerator(args.file, args.output, "")
+                new_FileGenerator = FileGenerator(args.file, args.output, "file")
             else:
                 print("Failed! Output directory doesn't exists.")
         else:

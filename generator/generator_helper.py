@@ -10,7 +10,7 @@ class GeneratorHelper:
 
     @property
     def generate_breadcrumb(self):
-        if self.structure_parsing_mode == "":
+        if self.structure_parsing_mode == "file" or "module":
             breadcrumb = '<ul class="breadcrumb"><li>' + os.path.basename(self.input_path) + '</li></ul>'
             return breadcrumb
 

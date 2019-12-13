@@ -15,12 +15,12 @@ class FileGenerator:
         self.parser = GolangParser(self.input_path)
 
         self.my_path = os.path.abspath(os.path.dirname(__file__))
-        self.path = os.path.join(self.my_path, "../templates/")
+        self.template_path = os.path.join(self.my_path, "../templates/")
 
         self.generate_file()
 
     def generate_file(self):
-        path = self.path + "file_template.html"
+        path = self.template_path + "file_template.html"
         template_content = self.get_template(path)
 
         template_split = re.split("Insert_here_0|Insert_here_1|Insert_here_2", template_content)
@@ -28,7 +28,12 @@ class FileGenerator:
         output_file = self.output_path + "/" + ntpath.basename(self.input_path)[:-3] + ".html"
         result = open(output_file, encoding='utf-8', mode="a+")
 
-        result.write(template_split[0] + """<br />""" + """<div strong class="text-primary">""" +
+        if self.parser_mode == "file":
+            result.write(template_split[0])
+        else:
+            result.write('<div class="container">')
+
+        result.write("""<br />""" + """<div strong class="text-primary">""" +
                      self.parser.first_comment + """</div>""" + template_split[1] +
                      """<code>""" + self.html_breadcrumb.generate_breadcrumb + """</code>
                                 <div class="text-primary">File: </div>""" +
@@ -46,7 +51,7 @@ class FileGenerator:
         self.generate_functions()
 
     def generate_imports(self):
-        path = self.path + "imports_template.html"
+        path = self.template_path + "imports_template.html"
         template_content = self.get_template(path)
         template_split = re.split('Insert_here_0|Insert_here_1|Insert_here_2|Insert_here_3', template_content)
 
@@ -75,7 +80,7 @@ class FileGenerator:
         result.close()
 
     def generate_variables(self):
-        path = self.path + "variables_template.html"
+        path = self.template_path + "variables_template.html"
         template_content = self.get_template(path)
         template_split = re.split('Insert_here_0|Insert_here_1|Insert_here_2|Insert_here_3', template_content)
 
@@ -104,7 +109,7 @@ class FileGenerator:
         result.close()
 
     def generate_const(self):
-        path = self.path + "const_template.html"
+        path = self.template_path + "const_template.html"
         template_content = self.get_template(path)
         template_split = re.split('Insert_here_0|Insert_here_1|Insert_here_2|Insert_here_3', template_content)
 
@@ -132,7 +137,7 @@ class FileGenerator:
         result.close()
 
     def generate_types(self):
-        path = self.path + "types_template.html"
+        path = self.template_path + "types_template.html"
         template_content = self.get_template(path)
         template_split = re.split('Insert_here_0|Insert_here_1|Insert_here_2|Insert_here_3', template_content)
 
@@ -164,7 +169,7 @@ class FileGenerator:
         result.close()
 
     def generate_functions(self):
-        path = self.path + "functions_template.html"
+        path = self.template_path + "functions_template.html"
         template_content = self.get_template(path)
         template_split = re.split('Insert_here_0|Insert_here_1|Insert_here_2|Insert_here_3', template_content)
 
