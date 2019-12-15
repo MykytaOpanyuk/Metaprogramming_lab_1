@@ -11,13 +11,11 @@ class FileGenerator:
         self.parser_mode = mode
         self.input_path = os.path.normpath(input_path)
         self.output_path = os.path.normpath(output_path)
-        self.html_breadcrumb = GeneratorHelper(input_path, output_path, self.parser_mode)
+        self.html_breadcrumb = GeneratorHelper()
         self.parser = GolangParser(self.input_path)
 
         self.my_path = os.path.abspath(os.path.dirname(__file__))
         self.template_path = os.path.join(self.my_path, "../templates/")
-
-        self.generate_file()
 
     def generate_file(self):
         path = self.template_path + "file_template.html"
@@ -26,23 +24,20 @@ class FileGenerator:
         template_split = re.split("Insert_here_0|Insert_here_1|Insert_here_2", template_content)
 
         output_file = self.output_path + "/" + ntpath.basename(self.input_path)[:-3] + ".html"
-        result = open(output_file, encoding='utf-8', mode="a+")
+        result = open(output_file, encoding='utf-8', mode="w+")
 
-        if self.parser_mode == "file":
-            result.write(template_split[0])
-        else:
-            result.write('<div class="container">')
-
-        result.write("""<br />""" + """<div strong class="text-primary">""" +
+        result.write(template_split[0] + """<br />""" + """<div strong class="text-primary">""" +
                      self.parser.first_comment + """</div>""" + template_split[1] +
-                     """<code>""" + self.html_breadcrumb.generate_breadcrumb + """</code>
+                     """<code>""" + self.html_breadcrumb.generate_breadcrumb(self) + """</code>
                                 <div class="text-primary">File: </div>""" +
-                     """ <div class="text-success">""" + self.parser.package.package_body + """</div>
-                            <span class="text-muted">""" + self.parser.package.package_comment + """</span>"""
+                     """ <div class="text-success">""" + self.parser.package.object_body + """</div>
+                            <span class="text-muted">""" + self.parser.package.object_comment + """</span>"""
                      + template_split[2] + """        
                             </div>
                         </div>""")
         result.close()
+
+        self.html_breadcrumb.get_names(self)
 
         self.generate_imports()
         self.generate_types()
@@ -63,10 +58,10 @@ class FileGenerator:
         for import_ in self.parser.imports:
             result.write(template_split[1] + """
                             <code>
-                                 <span class="text-primary">""" + import_.import_body + """</span>
+                                 <span class="text-primary">""" + import_.object_body + """</span>
                             </code>
                         """ + template_split[2] +
-                         ("<code>{}</code>".format(import_.import_comment) if import_.import_comment else """
+                         ("<code>{}</code>".format(import_.object_comment) if import_.object_comment else """
                             <div class="text-muted">
                                 No comments available
                             </div>""") + template_split[3] +
@@ -180,17 +175,19 @@ class FileGenerator:
 
         for function in self.parser.functions:
             result.write(template_split[1] + """
-                        <span class="text-primary">""" + function.func_name + """</span>
-                        <span class="text-success">Inputs:""" + ', '.join(function.inputs) + """</span>
-                        <span class="text-success">Returns:""" + ', '.join(function.returns) + """</span>
-                """ + template_split[2] +
-                         ("<code>{}</code>".format(function.object_comment) if function.object_comment else """
+                    <span class="text-primary">""" + function.func_name + """</span>
+                    <span class="text-success">Inputs:""" + function.inputs + """</span>
+                    <span class="text-success">Returns:""" + function.returns + """</span>
+                """ + template_split[2])
+            if function.object_comment:
+                result.write("<code>{}</code>".format(function.object_comment))
+            else:
+                result.write(""" 
                     <div class="text-muted">
                         No comments available
-                    </div>""") + template_split[3] +
-                         """
+                    </div>""" + template_split[3] + """ 
                     <div class="card-footer text-muted font-italic">
-                        <small> Located: """ + self.input_path + """ : """ + str(function.start_line) + """</small>
+                        <small> Located (№ of line): """ + self.input_path + """ : """ + str(function.start_line) + """</small>
                     </div> """)
 
         result.write(template_split[4])
