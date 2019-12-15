@@ -4,7 +4,7 @@ from generator.file_generator import FileGenerator
 from generator.module_generator import ModuleGenerator
 from generator.project_generator import ProjectGenerator
 
-VERSION = "pre0.1"
+VERSION = "0.01 Rev A"
 
 parser = argparse.ArgumentParser(description='Getting arguments for parsing Golang files/projects.')
 
@@ -27,8 +27,9 @@ if args.project is not None:
             golang_files = list(filter(lambda x: x.endswith('.go'), all_files))
             if len(golang_files) > 0:
                 if os.path.isdir(args.output):
-                    new_ProjectGenerator = ProjectGenerator(args.directory, args.output, \
-                                    os.path.basename(os.path.normpath(args[0].project)))
+                    new_ProjectGenerator = ProjectGenerator(args.project, args.output, \
+                                    os.path.basename(os.path.normpath(args.project)))
+                    new_ProjectGenerator.generate_main()
                 else:
                     print("Failed! Output directory doesn't exists.")
             else:
@@ -46,7 +47,9 @@ elif args.directory is not None:
             golang_files = list(filter(lambda x: x.endswith('.go'), files))
             if len(golang_files) > 0:
                 if os.path.isdir(args.output):
-                    new_ModuleGenerator = ModuleGenerator(args.directory, args.output, "module")
+                    new_ModuleGenerator = ModuleGenerator(args.directory,
+                        args.output, "module")
+                    new_ModuleGenerator.generate_modules()
                 else:
                     print("Failed! Output directory doesn't exists.")
             else:
@@ -61,6 +64,7 @@ elif args.file is not None:
         if args.output is not None:
             if os.path.isdir(args.output):
                 new_FileGenerator = FileGenerator(args.file, args.output, "file")
+                new_FileGenerator.generate_file()
             else:
                 print("Failed! Output directory doesn't exists.")
         else:
