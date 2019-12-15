@@ -1,6 +1,4 @@
-from .import_parser import ImportsParser
-from .package_parser import PackageParser
-from .objects_parser import get_type, get_const, get_variable, get_func
+from .objects_parser import get_type, get_const, get_variable, get_func, get_import, get_package
 import os
 
 
@@ -17,7 +15,6 @@ class GolangParser:
         self.imports = []
         self.const = []
         self.types = []
-        self.structs = []
         self.functions = []
         self.variables = []
         self.comments = []
@@ -64,6 +61,7 @@ class GolangParser:
             while self.content[self.index] != "\n" or self.content[self.index + 1:][
                                                       :2] == "//":  # while not end of comment
                 if self.content[self.index] == "\n" and self.content[self.index + 1:][:2] == "//":
+                    check_is_multiple = True
                     temporary_content = temporary_content + "<br />"
                     self.index = self.index + 1 + len("//")
                     self.line_counter = self.line_counter + 1
@@ -81,21 +79,20 @@ class GolangParser:
         return
 
     def parse_content(self):
-        new_import_parser = ImportsParser()
-        new_package_parser = PackageParser()
-
         while self.index < len(self.content):
             self.get_comment()
-            new_package_parser.get_package(self)
-            new_import_parser.get_imports(self)
-            get_variable(self)
-            get_const(self)
+            get_package(self)
+            get_import(self)
             get_type(self)
+            get_const(self)
+            get_variable(self)
             get_func(self)
             if self.index < len(self.content) and self.content[self.index] == "\n":
                 self.index = self.index + 1
                 self.line_counter = self.line_counter + 1
             if self.index < len(self.content) and self.content[self.index] == " ":
+                self.index = self.index + 1
+            if self.index < len(self.content) and self.content[self.index] == "\t":
                 self.index = self.index + 1
 
         print("Parsing is done!")

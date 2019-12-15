@@ -38,7 +38,6 @@ class ObjectParser:
             while parser.index < len(parser.content) and brace_stack_1 > 0:
                 if parser.content[parser.index] == "\n":
                     parser.line_counter = parser.line_counter + 1
-                    parser.index = parser.index + 1
                     self.object_body = self.object_body + "<br />"
 
                 if parser.content[parser.index] == "{":
@@ -51,11 +50,9 @@ class ObjectParser:
                 parser.index = parser.index + 1
 
         if is_first_brace == 2 and chars != "func ":
-            while brace_stack_2 > 0:
-                a = parser.content[parser.index]
+            while parser.index < len(parser.content) and brace_stack_2 > 0:
                 if parser.content[parser.index] == "\n":
                     parser.line_counter = parser.line_counter + 1
-                    parser.index = parser.index + 1
                     self.object_body = self.object_body + "<br />"
 
                 if parser.content[parser.index] == "(":
@@ -80,12 +77,34 @@ class ObjectParser:
             parser.comments_attached[-1] = True
 
 
+def get_package(parser):
+    chars = parser.content[parser.index:][:8]
+    self = ObjectParser()
+
+    if chars == "package ":
+        self.get_object(parser, chars)
+        self.name = parser.content.split('\n')[self.start_line]
+        self.name = self.name.split(' ')[1]
+        parser.package = self
+
+
+def get_import(parser):
+    chars = parser.content[parser.index:][:7]
+    self = ObjectParser()
+
+    if chars == "import ":
+        self.get_object(parser, chars)
+        self.name = parser.content.split('\n')[self.start_line]
+        parser.imports.append(self)
+
+
 def get_variable(parser):
     chars = parser.content[parser.index:][:4]
     self = ObjectParser()
 
     if chars == "var ":
         self.get_object(parser, chars)
+        self.name = parser.content.split('\n')[self.start_line]
         parser.variables.append(self)
 
 
@@ -95,6 +114,7 @@ def get_const(parser):
 
     if chars == "const ":
         self.get_object(parser, chars)
+        self.name = parser.content.split('\n')[self.start_line]
         parser.const.append(self)
 
 
@@ -128,8 +148,8 @@ def get_func(parser):
         buffer = ""
 
         self.func_name = ""
-        self.inputs = []
-        self.returns = []
+        self.inputs = ""
+        self.returns = ""
         self.check_is_definition = 1
 
         while index < len(first_str): # check is function definition
@@ -157,9 +177,9 @@ def get_func(parser):
                     brace_stack = brace_stack - 1
 
                     if self.func_name == "":
-                        self.inputs.append(buffer)
+                        self.inputs = buffer
                     else:
-                        self.returns.append(buffer)
+                        self.returns = buffer
                     buffer = ""
                 elif match("[a-zA-Z0-9_]", first_str[index - 1]):
                     index = index + 1
@@ -168,15 +188,15 @@ def get_func(parser):
                         index = index + 1
 
                     brace_stack = brace_stack - 1
-                    self.inputs.append(buffer)
+                    self.inputs = buffer
                     buffer = ""
             elif index < len(first_str) and self.func_name != "" and len(self.inputs) > 0:
-                while first_str[index] != "{" or index + 1 < len(first_str):
+                while first_str[index] != "{" and index + 1 < len(first_str):
                     buffer = buffer + first_str[index]
                     index = index + 1
 
                 if len(buffer) > 1:
-                    self.returns.append(buffer[1:-1])
+                    self.returns = buffer[1:-1]
                 buffer = ""
             index = index + 1
         parser.functions.append(self)

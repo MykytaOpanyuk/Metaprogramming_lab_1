@@ -6,8 +6,20 @@
     <title>Golang Doc. Project</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
+<div class="container">
+    <h1>
+        <strong class="text-primary">Golang Doc</strong>
+        <span class="text-primary">V0.01 Rev A</span>
+    </h1>
+    <span id="datetime" class="text-muted"></span>
+    <script>
+        let dt = new Date();
+        document.getElementById("datetime").innerHTML = (("0" + dt.getHours()).slice(-2)) + ":" + (("0" + dt.getMinutes()).slice(-2)) + ":" + (("0" + dt.getSeconds()).slice(-2)) + " " + (("0" + dt.getDate()).slice(-2)) + "." + (("0" + (dt.getMonth() + 1)).slice(-2)) + "." + (dt.getFullYear());
+    </script>
+</div>
 
 <body>
+Insert_here_0
 </body>
 
 </html>
