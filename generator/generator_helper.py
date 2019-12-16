@@ -77,11 +77,12 @@ class GeneratorHelper:
         all_lists_name = collections.OrderedDict(sorted(all_lists_name.items()))
 
         if os.path.exists(output_path):
-            with open(os.path.join(output_path, "main.html"), "a") as file:
-                file.write("""<div class="container">
-                        <h2>
-                            <span>Alphabetical index list:</span>
-                        </h2>
-                    """ + ''.join(('<hr style="height:2p"/><h2>{}</h2><br />'.format(
-                    key) if value == "" else '<a href="{}">{}</a><br />'.format(value, key)) for (key, value) in
-                  all_lists_name.items()) + """</div>""")
+            file = open(output_path +
+                 "/project_" + os.path.basename(output_path) + "_go.html", encoding='utf-8', mode="a+")
+            file.write("""<br /><div class="container">
+                    <h2>
+                        <span>Alphabetical index list:</span>
+                    </h2>
+                """ + ''.join(('<hr style="height:2p"/><h2>{}</h2><br />'.format(
+                key) if value == "" else '<a href="{}">{}</a><br />'.format(value, key)) for (key, value) in
+                all_lists_name.items()) + """</div>""")

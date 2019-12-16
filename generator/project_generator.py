@@ -103,13 +103,12 @@ class ProjectGenerator:
                          + os.path.basename(self.output_path) + """ <br /></strong>
             </h2>""")
 
+        result.close()
+
         self.html_helper.generate_alphabetical_index(self.output_path)
-        if os.path.basename(self.input_path) == self.parser_mode:
-            result.write("""<strong class="text-success"> Alphabetical index.<br />Project: <br /></strong>
-            </h2>""")
-        else:
-            result.write("""<strong class="text-success"> Alphabetical index.<br />Directory: <br /></strong>
-            </h2>""")
+
+        result = open(self.output_path +
+                "/project_" + os.path.basename(self.output_path) + "_go.html", encoding='utf-8', mode="a")
 
         self.generate_content()
 
@@ -117,7 +116,10 @@ class ProjectGenerator:
             for module in self.html_modules:
                 result.write('''
                 <div class="card mb-3">
-                    <div class="card-header"><h2>Content:</h2><br />
+                    <div class="card-header">
+                        <span>
+                            <h2>Content:</h2><br />
+                        </span>
                         <a href="''' + module + '''">''' + os.path.basename(module) + '''</a>
                     </div>
                 </div>''')
