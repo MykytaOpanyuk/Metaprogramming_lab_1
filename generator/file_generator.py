@@ -187,7 +187,7 @@ class FileGenerator:
                         No comments available
                     </div>""" + template_split[3] + """ 
                     <div class="card-footer text-muted font-italic">
-                        <small> Located (№ of line): """ + self.input_path + """ : """ + str(function.start_line) + """</small>
+                        <small> Located (num of line): """ + self.input_path + """ : """ + str(function.start_line) + """</small>
                     </div> """)
 
         result.write(template_split[4])
