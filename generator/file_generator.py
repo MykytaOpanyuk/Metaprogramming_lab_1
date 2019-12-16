@@ -145,7 +145,7 @@ class FileGenerator:
             result.write(template_split[1] + """
                     <code>
                         <span class="text-primary">""" + type_.name + """</span>
-                        <span class="text-success">""" + ', '.join(type_.object_type) + """</span>
+                        <span class="text-success">""" + type_.object_type + """</span>
                     </code>
                 """ + template_split[2] +
                          ("<code>{}</code>".format(type_.object_comment)

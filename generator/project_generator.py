@@ -113,17 +113,17 @@ class ProjectGenerator:
         self.generate_content()
 
         if self.golang_modules:
+            result.write('''
+            <div class="card mb-3">
+                <div class="card-header">
+                    <span>
+                        <h2>Content:</h2><br />
+                    </span>''')
+
             for module in self.html_modules:
                 result.write('''
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <span>
-                            <h2>Content:</h2><br />
-                        </span>
-                        <a href="''' + module + '''">''' + os.path.basename(module) + '''</a>
-                    </div>
-                </div>''')
+                        <br /><a href="''' + module + '''">''' + os.path.basename(module) + '''</a>''')
 
-        result.write(template_split[1])
+        result.write('''</div></div>''' + template_split[1])
 
         result.close()
