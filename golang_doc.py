@@ -28,8 +28,10 @@ if args.project is not None:
             if len(golang_files) > 0:
                 if not os.path.isdir(args.output):
                     os.mkdir(args.output)
-                new_ProjectGenerator = ProjectGenerator(args.project, args.output, \
-                        os.path.basename(os.path.normpath(args.project)))
+                new_ProjectGenerator = ProjectGenerator(args.project, args.output + \
+                        os.sep + os.path.basename(os.path.normpath(args.project)), \
+                        os.path.basename(os.path.normpath(args.project)),
+                        args.output + os.path.basename(os.path.normpath(args.project)))
                 new_ProjectGenerator.generate_main()
             else:
                 print("Failed! Directory doesn't contain *.go files.")
@@ -47,10 +49,9 @@ elif args.directory is not None:
             if len(golang_files) > 0:
                 if not os.path.isdir(args.output):
                     os.mkdir(args.output)
-                new_ModuleGenerator = ModuleGenerator(args.directory,
-                    args.output, "module")
+                new_ModuleGenerator = ModuleGenerator(args.directory, args.output, "module",
+                    args.output + os.sep + os.path.basename(os.path.normpath(args.directory)))
                 new_ModuleGenerator.generate_modules()
-
             else:
                 print("Failed! Directory doesn't contain *.go files.")
         else:
@@ -63,7 +64,8 @@ elif args.file is not None:
         if args.output is not None:
             if not os.path.isdir(args.output):
                 os.mkdir(args.output)
-            new_FileGenerator = FileGenerator(args.file, args.output, "file")
+            new_FileGenerator = FileGenerator(args.file, args.output, "file",
+                args.output + os.sep + os.path.basename(os.path.normpath(args.file)))
             new_FileGenerator.generate_file()
         else:
             print("Failed! Output isn't set.")

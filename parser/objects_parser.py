@@ -104,8 +104,14 @@ def get_variable(parser):
     self = ObjectParser()
 
     if chars == "var ":
+        self.name = ""
         self.get_object(parser, chars)
-        self.name = parser.content.split('\n')[self.start_line]
+        first_str = parser.content.split('\n')[self.start_line]
+        index = 0
+        while index < len(first_str) and first_str[index] != "=":
+            self.name = self.name + first_str[index]
+            index = index + 1
+
         parser.variables.append(self)
 
 
@@ -114,8 +120,14 @@ def get_const(parser):
     self = ObjectParser()
 
     if chars == "const ":
+        self.name = ""
         self.get_object(parser, chars)
-        self.name = parser.content.split('\n')[self.start_line]
+        first_str = parser.content.split('\n')[self.start_line]
+        index = 0
+        while index < len(first_str) and first_str[index] != "=":
+            self.name = self.name + first_str[index]
+            index = index + 1
+
         parser.const.append(self)
 
 

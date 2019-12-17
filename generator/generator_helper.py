@@ -22,26 +22,28 @@ class GeneratorHelper:
 
         if len(output_struct) > 1:
             depth = len(output_struct) - 1
-        else:
-            depth = len(output_struct)
+
         breadcrumb = '<ul class="breadcrumb">'
 
+        breadcrumb = breadcrumb + '<a href="' + \
+                     self.output_path + "/" + depth * "../" + output_struct[0] + '">' + output_struct[0] + '/</a>'
+
         if self.parser_mode != "file" and self.parser_mode != "module":
-            for item in output_struct:
+            for item in output_struct[1:]:
+                depth = depth - 1
                 if depth != 0:
                     breadcrumb = breadcrumb + '<a href="' + \
-                        self.output_path + "/" + depth * "../" + item + '">' + item + '/</a>'
+                        self.output_path + os.sep + depth * (".." + os.sep) + item + '">' + item + '/</a>'
                 else:
                     breadcrumb = breadcrumb + '<a href="' + \
-                        self.output_path + "/" + depth * "../" + item + '">' + item + '</a>'
-                depth = depth - 1
+                        self.output_path + os.sep + depth * (".." + os.sep) + item + '">' + item + '</a>'
             breadcrumb = breadcrumb + '</ul>'
             return breadcrumb
 
     @staticmethod
     def get_names(self):
         list_name = []
-        path = self.output_path + "/" + os.path.basename(self.input_path)[:-3] + ".html"
+        path = self.output_path + os.sep + os.path.basename(self.input_path)[:-3] + ".html"
 
         index = 0
         while index < len(self.parser.const):
@@ -80,7 +82,7 @@ class GeneratorHelper:
 
         if os.path.exists(output_path):
             file = open(output_path +
-                 "/project_" + os.path.basename(output_path) + "_go.html", encoding='utf-8', mode="a+")
+                 os.sep + "index_" + os.path.basename(output_path) + "_go.html", encoding='utf-8', mode="a+")
             file.write("""<br /><div class="container">
                     <h2>
                         <span>Alphabetical index list:</span>

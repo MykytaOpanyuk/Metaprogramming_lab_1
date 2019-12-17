@@ -7,15 +7,16 @@ import ntpath
 
 class FileGenerator:
 
-    def __init__(self, input_path, output_path, mode):
+    def __init__(self, input_path, output_path, mode, input_root_dir):
         self.parser_mode = mode
+        self.input_root_dir = input_root_dir
         self.input_path = os.path.normpath(input_path)
         self.output_path = os.path.normpath(output_path)
         self.html_breadcrumb = GeneratorHelper()
         self.parser = GolangParser(self.input_path)
 
         self.my_path = os.path.abspath(os.path.dirname(__file__))
-        self.template_path = os.path.join(self.my_path, "../templates/")
+        self.template_path = os.path.join(self.my_path, ".." + os.sep + "templates" + os.sep)
 
     def generate_file(self):
         path = self.template_path + "file_template.html"
@@ -23,12 +24,18 @@ class FileGenerator:
 
         template_split = re.split("Insert_here_0|Insert_here_1|Insert_here_2", template_content)
 
-        output_file = self.output_path + "/" + ntpath.basename(self.input_path)[:-3] + ".html"
+        output_file = self.output_path + os.sep + ntpath.basename(self.input_path)[:-3] + ".html"
         result = open(output_file, encoding='utf-8', mode="w")
 
         result.write(template_split[0] + """<br />""" + """<div strong class="text-primary">""" +
-                     self.parser.first_comment + """</div>""" + template_split[1] +
-                     """<code>""" + self.html_breadcrumb.generate_breadcrumb(self) + """</code>
+                     self.parser.first_comment + """</div>""" + template_split[1])
+
+        if self.parser_mode != "file" and self.parser_mode != "module":
+            result.write(
+                '''<a href="''' + self.input_root_dir + os.sep + "index_" + self.parser_mode + "_go.html" +
+                '''" class="btn btn-info float-right" role="button">Return to the main page</a><h2>''')
+
+        result.write("""<code class="container-fluid">""" + self.html_breadcrumb.generate_breadcrumb(self) + """</code>
                                 <div class="text-primary">File: </div>""" +
                      """ <div class="text-success">""" + self.parser.package.object_body + """</div>
                             <span class="text-muted">""" + self.parser.package.object_comment + """</span>"""

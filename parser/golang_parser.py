@@ -29,7 +29,6 @@ class GolangParser:
         file = open(self.input_file, encoding='utf-8', mode="r")
 
         self.content = file.read()
-        print(self.content)
         self.content = self.content.replace("\t", " &emsp; ")
         file.close()
 
