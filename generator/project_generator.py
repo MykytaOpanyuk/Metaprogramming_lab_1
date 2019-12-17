@@ -16,6 +16,9 @@ class ProjectGenerator:
 
         self.module_list = []
 
+        if not os.path.exists(self.output_path):
+            os.mkdir(self.output_path)
+
         for item in os.listdir(os.path.normpath(input_path)):
             joined_path = os.path.join(os.path.normpath(input_path), item)
             if os.path.isdir(joined_path) and os.path.basename(joined_path) != ".git":
@@ -41,10 +44,9 @@ class ProjectGenerator:
             if os.path.isdir(joined_path) and os.path.basename(joined_path):
                 self.html_modules.append(joined_path)
 
-
     def parse_modules(self):
         if len(self.golang_files) > 0:
-            generator = ModuleGenerator(self.output_path, self.input_path, self.parser_mode)
+            generator = ModuleGenerator(self.input_path, self.output_path, self.parser_mode)
             generator.generate_modules()
 
         self.golang_modules = list(filter(lambda module:
@@ -71,7 +73,7 @@ class ProjectGenerator:
             if not os.path.exists(out_path_dir):
                 os.makedirs(out_path_dir)
 
-            generator = ProjectGenerator(out_path_dir, subproj_path, self.parser_mode)
+            generator = ProjectGenerator(subproj_path, out_path_dir, self.parser_mode)
             if len(generator.golang_files) > 0:
                 generator.generate_main()
 

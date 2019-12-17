@@ -1,5 +1,6 @@
 from re import match
 
+
 class ObjectParser:
     def __init__(self):
         self.start_line = 0
@@ -10,63 +11,63 @@ class ObjectParser:
     def get_object(self, parser, chars):
         brace_stack_1 = 0
         brace_stack_2 = 0
-        is_first_brace = 0  # 1 - brace "{", 2 - brace "("
+        apostrophe_found_3 = False
+
         self.start_line = parser.line_counter
 
         self.object_body = self.object_body + chars
         parser.index = parser.index + len(chars)
 
         while parser.content[parser.index] != "\n":
-            self.object_body = self.object_body + parser.content[parser.index]
 
             if parser.content[parser.index] == "{":
                 brace_stack_1 = brace_stack_1 + 1
-                if not is_first_brace:
-                    is_first_brace = 1
             if parser.content[parser.index] == "(":
                 brace_stack_2 = brace_stack_2 + 1
-                if not is_first_brace:
-                    is_first_brace = 2
             if parser.content[parser.index] == "}":
                 brace_stack_1 = brace_stack_1 - 1
             if parser.content[parser.index] == ")":
                 brace_stack_2 = brace_stack_2 - 1
 
+            if parser.content[parser.index] == "`" and apostrophe_found_3:
+                apostrophe_found_3 = False
+
+            if parser.content[parser.index] == "`" and not apostrophe_found_3:
+                apostrophe_found_3 = True
+
+            self.object_body = self.object_body + parser.content[parser.index]
             parser.index = parser.index + 1
 
-        if is_first_brace == 1 or chars == "func ":
-            while parser.index < len(parser.content) and brace_stack_1 > 0:
-                if parser.content[parser.index] == "\n":
-                    parser.line_counter = parser.line_counter + 1
-                    self.object_body = self.object_body + "<br />"
+        while parser.index < len(parser.content) and brace_stack_2 > 0 or brace_stack_1 > 0 or apostrophe_found_3:
+            while parser.index < len(parser.content) and parser.content[parser.index] != "\n":
+                if parser.content[parser.index] == "(":
+                    brace_stack_2 = brace_stack_2 + 1
 
                 if parser.content[parser.index] == "{":
                     brace_stack_1 = brace_stack_1 + 1
 
-                if parser.content[parser.index] == "}":
-                    brace_stack_1 = brace_stack_1 - 1
-
-                self.object_body = self.object_body + parser.content[parser.index]
-                parser.index = parser.index + 1
-
-        if is_first_brace == 2 and chars != "func ":
-            while parser.index < len(parser.content) and brace_stack_2 > 0:
-                if parser.content[parser.index] == "\n":
-                    parser.line_counter = parser.line_counter + 1
-                    self.object_body = self.object_body + "<br />"
-
-                if parser.content[parser.index] == "(":
-                    brace_stack_2 = brace_stack_2 + 1
+                if parser.content[parser.index] == "`" and not apostrophe_found_3:
+                    apostrophe_found_3 = True
 
                 if parser.content[parser.index] == ")":
                     brace_stack_2 = brace_stack_2 - 1
 
+                if parser.content[parser.index] == "}":
+                    brace_stack_1 = brace_stack_1 - 1
+
+                if parser.content[parser.index] == "`" and apostrophe_found_3:
+                    apostrophe_found_3 = False
+
                 self.object_body = self.object_body + parser.content[parser.index]
                 parser.index = parser.index + 1
 
+            parser.line_counter = parser.line_counter + 1
+            self.object_body = self.object_body + " <br /> "
+            parser.index = parser.index + 1
+
         parser.index = parser.index + 1
         parser.line_counter = parser.line_counter + 1
-        self.object_body = self.object_body + "<br />"
+        self.object_body = self.object_body + " <br /> "
         self.get_comment_for_object(parser)
 
     def get_comment_for_object(self, parser):
@@ -150,29 +151,31 @@ def get_func(parser):
         self.func_name = ""
         self.inputs = ""
         self.returns = ""
-        self.check_is_definition = 1
+        self.brace_stack_body = 0
 
-        while index < len(first_str): # check is function definition
+        while index < len(first_str):  # check is function definition
             if first_str[index] == "{":
-                self.check_is_definition = 0
+                self.brace_stack_body = self.brace_stack_body + 1
             index = index + 1
 
         index = len("func ")
 
-        while index < len(first_str):
-            if brace_stack == 0 and match("[a-zA-Z0-9_]", first_str[index]):
-                while index < len(first_str) and first_str[index] != "(":
-                    buffer = buffer + first_str[index]
+        while index < len(self.object_body) and self.brace_stack_body > 0:
+            if brace_stack == 0 and match("[a-zA-Z0-9_]", self.object_body[index]) and not self.func_name:
+                while index < len(self.object_body) and self.object_body[index] != "(":
+                    buffer = buffer + self.object_body[index]
                     index = index + 1
 
                 self.func_name = buffer
                 buffer = ""
-            if index < len(first_str) and first_str[index] == "(":
+            if index < len(self.object_body) and self.object_body[index] == "{":
+                self.brace_stack_body = self.brace_stack_body - 1
+            if index < len(self.object_body) and self.object_body[index] == "(":
                 brace_stack = brace_stack + 1
-                if not match("[a-zA-Z0-9_]", first_str[index - 1]):
+                if not match("[a-zA-Z0-9_]", self.object_body[index - 1]):
                     index = index + 1
-                    while first_str[index] != ")":
-                        buffer = buffer + first_str[index]
+                    while self.object_body[index] != ")":
+                        buffer = buffer + self.object_body[index]
                         index = index + 1
                     brace_stack = brace_stack - 1
 
@@ -181,22 +184,23 @@ def get_func(parser):
                     else:
                         self.returns = buffer
                     buffer = ""
-                elif match("[a-zA-Z0-9_]", first_str[index - 1]):
+                elif match("[a-zA-Z0-9_]", self.object_body[index - 1]):
                     index = index + 1
-                    while first_str[index] != ")":
-                        buffer = buffer + first_str[index]
+                    while self.object_body[index] != ")":
+                        buffer = buffer + self.object_body[index]
                         index = index + 1
 
                     brace_stack = brace_stack - 1
                     self.inputs = buffer
                     buffer = ""
-            elif index < len(first_str) and self.func_name != "" and len(self.inputs) > 0:
-                while first_str[index] != "{" and index + 1 < len(first_str):
-                    buffer = buffer + first_str[index]
+            elif index < len(self.object_body) and self.func_name != "" and len(self.inputs) > 0:
+                while self.object_body[index] != "{" and index + 1 < len(self.object_body):
+                    buffer = buffer + self.object_body[index]
                     index = index + 1
 
                 if len(buffer) > 1:
                     self.returns = buffer[1:-1]
                 buffer = ""
-            index = index + 1
+            else:
+                index = index + 1
         parser.functions.append(self)

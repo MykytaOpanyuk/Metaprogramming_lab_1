@@ -26,12 +26,11 @@ if args.project is not None:
                     all_files.append(f)
             golang_files = list(filter(lambda x: x.endswith('.go'), all_files))
             if len(golang_files) > 0:
-                if os.path.isdir(args.output):
-                    new_ProjectGenerator = ProjectGenerator(args.project, args.output, \
-                                    os.path.basename(os.path.normpath(args.project)))
-                    new_ProjectGenerator.generate_main()
-                else:
-                    print("Failed! Output directory doesn't exists.")
+                if not os.path.isdir(args.output):
+                    os.mkdir(args.output)
+                new_ProjectGenerator = ProjectGenerator(args.project, args.output, \
+                        os.path.basename(os.path.normpath(args.project)))
+                new_ProjectGenerator.generate_main()
             else:
                 print("Failed! Directory doesn't contain *.go files.")
         else:
@@ -46,12 +45,12 @@ elif args.directory is not None:
             files = os.listdir(args.directory)
             golang_files = list(filter(lambda x: x.endswith('.go'), files))
             if len(golang_files) > 0:
-                if os.path.isdir(args.output):
-                    new_ModuleGenerator = ModuleGenerator(args.directory,
-                        args.output, "module")
-                    new_ModuleGenerator.generate_modules()
-                else:
-                    print("Failed! Output directory doesn't exists.")
+                if not os.path.isdir(args.output):
+                    os.mkdir(args.output)
+                new_ModuleGenerator = ModuleGenerator(args.directory,
+                    args.output, "module")
+                new_ModuleGenerator.generate_modules()
+
             else:
                 print("Failed! Directory doesn't contain *.go files.")
         else:
@@ -62,11 +61,10 @@ elif args.directory is not None:
 elif args.file is not None:
     if os.path.isfile(args.file):
         if args.output is not None:
-            if os.path.isdir(args.output):
-                new_FileGenerator = FileGenerator(args.file, args.output, "file")
-                new_FileGenerator.generate_file()
-            else:
-                print("Failed! Output directory doesn't exists.")
+            if not os.path.isdir(args.output):
+                os.mkdir(args.output)
+            new_FileGenerator = FileGenerator(args.file, args.output, "file")
+            new_FileGenerator.generate_file()
         else:
             print("Failed! Output isn't set.")
     else:

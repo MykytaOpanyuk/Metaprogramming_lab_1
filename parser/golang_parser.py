@@ -31,7 +31,6 @@ class GolangParser:
         self.content = file.read()
         print(self.content)
         self.content = self.content.replace("\t", " &emsp; ")
-
         file.close()
 
     def get_comment(self):
@@ -80,6 +79,8 @@ class GolangParser:
 
     def parse_content(self):
         while self.index < len(self.content):
+            if self.line_counter > 5630:
+                print("stop")
             self.get_comment()
             get_package(self)
             get_import(self)
@@ -96,5 +97,6 @@ class GolangParser:
                 self.index = self.index + 1
 
         print("Parsing is done!")
-        self.first_comment = self.comments[0]
+        if len(self.comments) > 0:
+            self.first_comment = self.comments[0]
 

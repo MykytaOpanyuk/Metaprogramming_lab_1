@@ -30,10 +30,10 @@ class GeneratorHelper:
             for item in output_struct:
                 if depth != 0:
                     breadcrumb = breadcrumb + '<a href="' + \
-                                 self.output_path + "/" + depth * "../" + item + '">' + item + '/</a>'
+                        self.output_path + "/" + depth * "../" + item + '">' + item + '/</a>'
                 else:
                     breadcrumb = breadcrumb + '<a href="' + \
-                                 self.output_path + "/" + depth * "../" + item + '">' + item + '</a>'
+                        self.output_path + "/" + depth * "../" + item + '">' + item + '</a>'
                 depth = depth - 1
             breadcrumb = breadcrumb + '</ul>'
             return breadcrumb
@@ -45,23 +45,25 @@ class GeneratorHelper:
 
         index = 0
         while index < len(self.parser.const):
+            name = "const " + self.parser.const[index].name
             list_name.append(self.parser.const[index].name)
             index += 1
 
         index = 0
         while index < len(self.parser.types):
-            name = self.parser.types[index].name + self.parser.types[index].object_type
+            name = "type " + self.parser.types[index].name + self.parser.types[index].object_type
             list_name.append(name)
             index += 1
 
         index = 0
         while index < len(self.parser.variables):
+            name = "var " + self.parser.variables[index].name
             list_name.append(self.parser.variables[index].name)
             index += 1
 
         index = 0
         while index < len(self.parser.functions):
-            name = self.parser.functions[index].func_name + self.parser.functions[index].inputs \
+            name = "func " + self.parser.functions[index].func_name + self.parser.functions[index].inputs \
                    + self.parser.functions[index].returns
             list_name.append(name)
             index += 1
